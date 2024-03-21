@@ -1,0 +1,29 @@
+{
+  "name": "mariaboterecetas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "npx nodemon src/index.js"
+  },
+  "author": "mariabote",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.17.1",
+    "mysql2": "^3.9.2"
+  },
+  "description": "modulo-4-evaluacion-final-bpw-mariabote",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adalab/modulo-4-evaluacion-final-bpw-mariabote.git"
+  },
+  "keywords": [
+    "recetas"
+  ],
+  "bugs": {
+    "url": "https://github.com/Adalab/modulo-4-evaluacion-final-bpw-mariabote/issues"
+  },
+  "homepage": "https://github.com/Adalab/modulo-4-evaluacion-final-bpw-mariabote#readme"
+}
