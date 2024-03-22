@@ -19,12 +19,6 @@ server.get("/", function (req, res) {
 
 //Crear conexion MySQL
 async function getConnection() {
-  console.log({
-    host: process.env.MYSQL_HOST,
-    database: process.env.MYSQL_SCHEMA,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS,
-  });
   const connection = await mysql.createConnection({
     host: process.env.MYSQL_HOST,
     database: process.env.MYSQL_SCHEMA,
@@ -34,30 +28,33 @@ async function getConnection() {
 
   await connection.connect();
 
-  console.log(
-    `Conexión establecida con la base de datos (identificador=${connection.threadId})`
-  );
-
   return connection;
 }
 // Definir los endpoints
 // Obtener todas las recetas
 server.get(`/api/recetas`, async function (req, res) {
-  // Conectar con la bbdd
-  const conn = await getConnection(); // async   Dev conn
-  // Mandarle el SELECT  -> result
-  const queryGetRecipes = `SELECT * FROM recetas`;
-  const [results] = await conn.query(queryGetRecipes); //  async  Dev result
-  // Recuperar datos
-  console.log(results);
-  // Cerrar la conexion
-  conn.end();
-  // Enviar los resultos
-  res.json({
-    success: true,
-    info: { count: results.length }, // número de elementos
-    results: results, // listado });
-  });
+  let conn; // Definir la variable de conexión fuera del bloque try
+  try {
+    // Conectar con la bbdd
+    conn = await getConnection(); // async   Dev conn
+    // Mandarle el SELECT  -> result
+    const queryGetRecipes = `SELECT * FROM recetas`;
+    const [results] = await conn.query(queryGetRecipes); //  async  Dev result
+    // Enviar los resultos
+    res.json({
+      success: true,
+      info: { count: results.length }, // número de elementos
+      results: results, // listado });
+    });
+  } catch (error) {
+    // Manejar errores
+    res
+      .status(500)
+      .json({ success: false, message: "Error al listar las recetas" });
+  } finally {
+    // Cerrar la conexión a la base de datos
+    conn.end();
+  }
 });
 
 //Obtener una receta por su ID
@@ -89,7 +86,6 @@ server.get(`/api/recetas/:id`, async function (req, res) {
     });
   } catch (error) {
     // Manejar errores
-    console.error("Error al obtener la receta por ID:", error);
     res
       .status(500)
       .json({ success: false, message: "Error al obtener la receta por ID" });
@@ -136,7 +132,6 @@ server.post(`/api/recetas`, async function (req, res) {
     }
   } catch (error) {
     // Manejar errores
-    console.error("Error al insertar la receta:", error);
     res.json({ success: false, message: "Error al insertar la receta" });
   } finally {
     // Cerrar la conexión a la base de datos si está definida y abierta
@@ -148,41 +143,6 @@ server.post(`/api/recetas`, async function (req, res) {
 
 // Actualizar una receta existente (PUT /api/recetas/:id)
 server.put(`/api/recetas/:id`, async function (req, res) {
-  // let receta;
-  // try {
-  //   // Obtener el ID de la receta desde los parámetros de la URL
-  //   const recetaId = req.params.id;
-
-  //   // Conectar con la base de datos
-  //   const conn = await getConnection(); // async   Dev conn
-
-  //   // Consultar la base de datos para obtener la receta con el ID especificado
-  //   const queryGetRecipeById = `SELECT * FROM recetas WHERE id = ?`;
-  //   const [results] = await conn.query(queryGetRecipeById, [recetaId]); //  async  Dev result
-
-  //   // Verificar si se encontró la receta
-  //   if (results.length === 0) {
-  //     // Si no se encontró la receta, enviar una respuesta de error
-  //     return res
-  //       .status(404)
-  //       .json({ success: false, message: "Receta no encontrada" });
-  //   }
-  //   receta = results[0];
-  //   // Si se encontró la receta, enviarla en la respuesta
-  //   // res.json({
-  //   //   success: true,
-  //   //   result: results[0], // Devuelve solo la primera receta encontrada
-  //   // });
-  // } catch (error) {
-  //   // Manejar errores
-  //   console.error("Error al obtener la receta por ID:", error);
-  //   res
-  //     .status(500)
-  //     .json({ success: false, message: "Error al obtener la receta por ID" });
-  // } finally {
-  //   // Cerrar la conexión a la base de datos
-  //   conn.end();
-  // }
   let conn; // Definir la variable de conexión fuera del bloque try
   try {
     const recetaId = req.params.id;
@@ -221,7 +181,6 @@ server.put(`/api/recetas/:id`, async function (req, res) {
     }
   } catch (error) {
     // Manejar errores
-    console.error("Error al modificar la receta:", error);
     res.json({ success: false, message: "Error al modificar la receta" });
   } finally {
     // Cerrar la conexión a la base de datos si está definida y abierta
@@ -254,7 +213,6 @@ server.delete(`/api/recetas/:id`, async function (req, res) {
     }
   } catch (error) {
     // Manejar errores
-    console.error("Error al borrar la receta:", error);
     res.json({ success: false, message: "Error al borrar la receta" });
   } finally {
     // Cerrar la conexión a la base de datos si está definida y abierta
